@@ -1,0 +1,59 @@
+from datetime import date, datetime, time
+from decimal import Decimal
+from uuid import UUID
+
+from pydantic import BaseModel, Field
+
+
+class MatchRead(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: UUID
+    club_id: UUID
+    season_id: UUID | None
+    team_id: UUID | None
+    fixture_type_id: UUID | None
+    series_id: UUID | None
+    date: date
+    time: time
+    opponent: str
+    venue: str
+    type: str
+    status: str
+    fee_amount: Decimal
+    our_score: str | None
+    opponent_score: str | None
+    man_of_match_id: UUID | None
+    match_report: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class MatchCreate(BaseModel):
+    team_id: UUID
+    date: date
+    time: time = time(14, 0)
+    opponent: str = Field(..., max_length=255)
+    venue: str = Field(..., pattern="^(Home|Away)$")
+    type: str = Field(..., pattern="^(League|Friendly|T20|Net Session)$")
+    season_id: UUID | None = None
+    fixture_type_id: UUID | None = None
+    fee_amount: Decimal = Decimal("0.00")
+
+
+class MatchUpdate(BaseModel):
+    team_id: UUID | None = None
+    date: date | None = None
+    time: time | None = None
+    opponent: str | None = None
+    venue: str | None = Field(None, pattern="^(Home|Away)$")
+    type: str | None = Field(None, pattern="^(League|Friendly|T20|Net Session)$")
+    season_id: UUID | None = None
+    fixture_type_id: UUID | None = None
+    series_id: UUID | None = None
+    fee_amount: Decimal | None = None
+    status: str | None = None
+    our_score: str | None = None
+    opponent_score: str | None = None
+    man_of_match_id: UUID | None = None
+    match_report: str | None = None
