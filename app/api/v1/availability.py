@@ -8,9 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.exceptions import NotFoundError
-from app.core.permissions import require_member
+from app.core.permissions import require_admin_or_captain, require_member
 from app.models.player import Player
 from app.schemas.auth import CurrentUser
+from app.schemas.lifecycle import MemberAvailabilitySummaryRead
 from app.schemas.match_availability import (
     AvailabilityRead,
     AvailabilityUpdate,
@@ -66,6 +67,31 @@ async def set_my_availability(
     service = AvailabilityService(db, club_id)
     record = await service.set_availability(match_id, player.id, body.status)
     return AvailabilityRead.model_validate(record)
+
+
+@router.get("/summary", response_model=list[MemberAvailabilitySummaryRead])
+async def get_availability_summary(
+    club_id: Annotated[UUID, Path()],
+    match_id: Annotated[UUID, Path()],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> list[MemberAvailabilitySummaryRead]:
+    require_member(current_user, club_id)
+    service = AvailabilityService(db, club_id)
+    return await service.get_availability_summary(match_id)
+
+
+@router.post("/requests")
+async def send_availability_requests(
+    club_id: Annotated[UUID, Path()],
+    match_id: Annotated[UUID, Path()],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    require_admin_or_captain(current_user, club_id)
+    service = AvailabilityService(db, club_id)
+    sent = await service.send_availability_requests(match_id)
+    return {"sent": sent}
 
 
 @bulk_router.post("/bulk")

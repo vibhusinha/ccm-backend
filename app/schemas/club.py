@@ -21,6 +21,19 @@ class ClubRead(BaseModel):
     updated_at: datetime
 
 
+class ClubKeyPersonRead(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: UUID
+    club_id: UUID
+    position: str
+    name: str
+    email: str | None
+    phone: str | None
+    member_id: UUID | None
+    display_order: int
+
+
 class ClubUpdate(BaseModel):
     name: str | None = None
     logo_url: str | None = None

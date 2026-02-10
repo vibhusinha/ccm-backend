@@ -44,6 +44,12 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL")
     )
     match_report: Mapped[str | None] = mapped_column(Text)
+    result: Mapped[str | None] = mapped_column(String(20))
+    result_margin: Mapped[int | None] = mapped_column()
+    result_margin_type: Mapped[str | None] = mapped_column(String(10))
+    toss_won_by: Mapped[str | None] = mapped_column(String(20))
+    toss_decision: Mapped[str | None] = mapped_column(String(10))
+    home_batted_first: Mapped[bool | None] = mapped_column()
 
     team: Mapped["Team | None"] = relationship(back_populates="matches")
     availability: Mapped[list["MatchAvailability"]] = relationship(back_populates="match")

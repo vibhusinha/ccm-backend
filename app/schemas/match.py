@@ -25,6 +25,12 @@ class MatchRead(BaseModel):
     opponent_score: str | None
     man_of_match_id: UUID | None
     match_report: str | None
+    result: str | None = None
+    result_margin: int | None = None
+    result_margin_type: str | None = None
+    toss_won_by: str | None = None
+    toss_decision: str | None = None
+    home_batted_first: bool | None = None
     created_at: dt.datetime
     updated_at: dt.datetime
 

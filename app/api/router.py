@@ -5,19 +5,26 @@ from app.api.v1 import (
     auth,
     availability,
     clubs,
+    fee_config,
     fixture_series,
     fixture_types,
     health,
+    lifecycle,
     matches,
     members,
     navigation,
+    notifications,
+    payments,
     players,
     platform,
     profiles,
+    recommendations,
     registration,
     roles,
+    scoring,
     seasons,
     selections,
+    statistics,
     teams,
 )
 
@@ -61,3 +68,33 @@ api_router.include_router(selections.router)
 api_router.include_router(fixture_types.router)
 api_router.include_router(fixture_series.router)
 api_router.include_router(announcements.router)
+
+# Payments & Finance
+api_router.include_router(payments.router)
+api_router.include_router(payments.player_payments_router)
+api_router.include_router(payments.payment_actions_router)
+api_router.include_router(fee_config.router)
+
+# Notifications
+api_router.include_router(notifications.router)
+api_router.include_router(notifications.notification_actions_router)
+api_router.include_router(notifications.reminders_router)
+api_router.include_router(notifications.push_tokens_router)
+
+# Scoring & Statistics
+api_router.include_router(scoring.router)
+api_router.include_router(scoring.club_router)
+api_router.include_router(scoring.innings_router)
+api_router.include_router(statistics.router)
+
+# Lifecycle
+api_router.include_router(lifecycle.router)
+api_router.include_router(lifecycle.club_router)
+api_router.include_router(lifecycle.player_router)
+
+# Recommendations
+api_router.include_router(recommendations.match_router)
+api_router.include_router(recommendations.club_router)
+api_router.include_router(recommendations.player_router)
+api_router.include_router(recommendations.override_router)
+api_router.include_router(recommendations.fixture_router)

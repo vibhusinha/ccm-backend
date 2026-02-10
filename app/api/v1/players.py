@@ -9,10 +9,26 @@ from app.core.dependencies import get_current_user
 from app.core.exceptions import NotFoundError
 from app.core.permissions import require_admin, require_member
 from app.schemas.auth import CurrentUser
+from app.schemas.lifecycle import PlayerSelectionStatsRead
 from app.schemas.player import PlayerCreate, PlayerRead, PlayerUpdate
+from app.services.lifecycle_service import LifecycleService
 from app.services.player_service import PlayerService
 
 router = APIRouter(prefix="/clubs/{club_id}/players", tags=["players"])
+
+
+@router.get("/me", response_model=PlayerRead)
+async def get_my_player(
+    club_id: Annotated[UUID, Path()],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> PlayerRead:
+    require_member(current_user, club_id)
+    service = PlayerService(db, club_id)
+    player = await service.get_by_user_id(current_user.user_id)
+    if not player:
+        raise NotFoundError("Player profile not found for this club")
+    return PlayerRead.model_validate(player)
 
 
 @router.get("/", response_model=list[PlayerRead])
@@ -53,6 +69,18 @@ async def get_player(
     if not player:
         raise NotFoundError("Player not found")
     return PlayerRead.model_validate(player)
+
+
+@router.get("/{player_id}/selection-stats", response_model=PlayerSelectionStatsRead)
+async def get_player_selection_stats(
+    club_id: Annotated[UUID, Path()],
+    player_id: Annotated[UUID, Path()],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> PlayerSelectionStatsRead:
+    require_member(current_user, club_id)
+    service = LifecycleService(db, club_id)
+    return await service.get_selection_stats(player_id)
 
 
 @router.patch("/{player_id}", response_model=PlayerRead)

@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.player import Player
@@ -19,3 +20,8 @@ class PlayerService(BaseService[Player]):
         stmt = self._scoped_query().where(Player.team_id == team_id).order_by(Player.name)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_by_user_id(self, user_id: UUID) -> Player | None:
+        stmt = self._scoped_query().where(Player.user_id == user_id)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
