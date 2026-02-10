@@ -1,7 +1,7 @@
 import uuid
 from datetime import date
 
-from sqlalchemy import Boolean, CheckConstraint, Date, ForeignKey, String, Text
+from sqlalchemy import Boolean, CheckConstraint, Date, ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,7 +28,7 @@ class Player(Base, ClubScopedMixin, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("teams.id", ondelete="SET NULL")
     )
     is_core: Mapped[bool] = mapped_column(Boolean, default=False)
-    member_since: Mapped[date | None] = mapped_column(Date, server_default="CURRENT_DATE")
+    member_since: Mapped[date | None] = mapped_column(Date, server_default=text("CURRENT_DATE"))
 
     __table_args__ = (
         CheckConstraint(

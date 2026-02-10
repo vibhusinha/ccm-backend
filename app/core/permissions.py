@@ -8,6 +8,12 @@ SELECTION_ROLES = ADMIN_ROLES | {"captain", "vice_captain"}
 ALL_MEMBER_ROLES = SELECTION_ROLES | {"player", "sponsor"}
 
 
+def require_platform_admin(current_user: CurrentUser) -> None:
+    """Check that the user is a platform admin."""
+    if not current_user.is_platform_admin:
+        raise ForbiddenError("Platform admin access required")
+
+
 def require_role(
     current_user: CurrentUser,
     club_id: UUID,

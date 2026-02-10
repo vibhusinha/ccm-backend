@@ -44,7 +44,7 @@ async def seed_club(db_session: AsyncSession):
 async def test_player_cannot_create_team(db_session: AsyncSession, seed_club):
     async with await _make_client_with_role(db_session, "player") as client:
         response = await client.post(
-            f"/api/v1/clubs/{TEST_CLUB_ID}/teams",
+            f"/api/v1/clubs/{TEST_CLUB_ID}/teams/",
             json={"name": "3rd XI"},
         )
         assert response.status_code == 403
@@ -54,7 +54,7 @@ async def test_player_cannot_create_team(db_session: AsyncSession, seed_club):
 async def test_admin_can_create_team(db_session: AsyncSession, seed_club):
     async with await _make_client_with_role(db_session, "clubadmin") as client:
         response = await client.post(
-            f"/api/v1/clubs/{TEST_CLUB_ID}/teams",
+            f"/api/v1/clubs/{TEST_CLUB_ID}/teams/",
             json={"name": "3rd XI"},
         )
         assert response.status_code == 201
@@ -69,7 +69,7 @@ async def test_sponsor_cannot_create_match(db_session: AsyncSession, seed_club):
 
     async with await _make_client_with_role(db_session, "sponsor") as client:
         response = await client.post(
-            f"/api/v1/clubs/{TEST_CLUB_ID}/matches",
+            f"/api/v1/clubs/{TEST_CLUB_ID}/matches/",
             json={
                 "team_id": str(team.id),
                 "date": "2026-07-01",

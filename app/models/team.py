@@ -22,10 +22,14 @@ class Team(Base, ClubScopedMixin, TimestampMixin):
     division_number: Mapped[int | None] = mapped_column(Integer)
     division_group: Mapped[str | None] = mapped_column(String(1))
     captain_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL", use_alter=True)
+        UUID(as_uuid=True),
+        ForeignKey("players.id", ondelete="SET NULL", use_alter=True, name="fk_teams_captain_id"),
     )
     vice_captain_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL", use_alter=True)
+        UUID(as_uuid=True),
+        ForeignKey(
+            "players.id", ondelete="SET NULL", use_alter=True, name="fk_teams_vice_captain_id"
+        ),
     )
     season_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("seasons.id", ondelete="SET NULL")

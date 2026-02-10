@@ -1,7 +1,8 @@
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, String, Text
+from sqlalchemy import CheckConstraint, DateTime, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,6 +27,9 @@ class Club(Base, TimestampMixin):
     logo_storage_path: Mapped[str | None] = mapped_column(Text)
     subscription_tier: Mapped[str] = mapped_column(String(20), default="free")
     stripe_customer_id: Mapped[str | None] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(20), server_default="active", nullable=False)
+    suspended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    suspension_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     members: Mapped[list["ClubMember"]] = relationship(back_populates="club")
     seasons: Mapped[list["Season"]] = relationship(back_populates="club")

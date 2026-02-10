@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, ForbiddenError
-from app.core.security import decode_supabase_jwt
+from app.core.security import decode_access_token
 from app.schemas.auth import ClubMembership, CurrentUser
 
 
@@ -15,31 +15,23 @@ async def get_current_user(
     authorization: Annotated[str, Header()],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> CurrentUser:
-    """Extract and validate Supabase JWT. Look up club memberships."""
+    """Extract and validate JWT access token. Look up club memberships."""
     if not authorization.startswith("Bearer "):
         raise AuthenticationError("Invalid authorization header")
 
     token = authorization[7:]
-    payload = await decode_supabase_jwt(token)
+    payload = decode_access_token(token)
 
     user_id = UUID(payload["sub"])
     email = payload.get("email", "")
 
-    # Auto-create profile if it doesn't exist
+    # Look up profile (registration handles creation)
     from app.models.profile import Profile
 
     result = await db.execute(select(Profile).where(Profile.id == user_id))
     profile = result.scalar_one_or_none()
     if profile is None:
-        user_meta = payload.get("user_metadata", {})
-        profile = Profile(
-            id=user_id,
-            email=email,
-            full_name=user_meta.get("full_name", ""),
-            avatar_url=user_meta.get("avatar_url", ""),
-        )
-        db.add(profile)
-        await db.flush()
+        raise AuthenticationError("User profile not found")
 
     # Check if platform admin
     from app.models.platform_admin import PlatformAdmin

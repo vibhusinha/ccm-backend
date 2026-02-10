@@ -10,13 +10,6 @@ from app.core.exception_handlers import register_exception_handlers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: warm JWKS cache
-    from app.core.security import _fetch_jwks
-
-    try:
-        await _fetch_jwks()
-    except Exception:
-        pass  # Non-fatal; will retry on first request
     yield
     # Shutdown: dispose engine
     from app.core.database import engine

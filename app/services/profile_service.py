@@ -25,3 +25,24 @@ class ProfileService:
         await self.db.flush()
         await self.db.refresh(profile)
         return profile
+
+    async def upload_avatar(self, user_id: UUID, image_data: str, mime_type: str) -> Profile:
+        profile = await self.get_by_id(user_id)
+        if not profile:
+            raise NotFoundError("Profile not found")
+        if len(image_data) > 2_800_000:
+            raise ValueError("Image too large. Maximum size is approximately 2MB.")
+        data_uri = f"data:{mime_type};base64,{image_data}"
+        profile.avatar_url = data_uri
+        await self.db.flush()
+        await self.db.refresh(profile)
+        return profile
+
+    async def delete_avatar(self, user_id: UUID) -> Profile:
+        profile = await self.get_by_id(user_id)
+        if not profile:
+            raise NotFoundError("Profile not found")
+        profile.avatar_url = None
+        await self.db.flush()
+        await self.db.refresh(profile)
+        return profile

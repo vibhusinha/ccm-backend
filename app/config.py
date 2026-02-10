@@ -24,10 +24,11 @@ class Settings(BaseSettings):
     database_pool_size: int = 20
     database_max_overflow: int = 10
 
-    # Supabase Auth
-    supabase_url: str = ""
-    supabase_jwt_secret: str = ""
-    supabase_jwks_url: str = ""
+    # JWT Auth
+    jwt_secret: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 30
 
     # CORS
     cors_origins: list[str] = ["http://localhost:8081", "http://localhost:19006"]
@@ -35,12 +36,6 @@ class Settings(BaseSettings):
     # Pagination
     default_page_size: int = 20
     max_page_size: int = 100
-
-    @property
-    def computed_jwks_url(self) -> str:
-        if self.supabase_jwks_url:
-            return self.supabase_jwks_url
-        return f"{self.supabase_url}/auth/v1/.well-known/jwks.json"
 
 
 @lru_cache

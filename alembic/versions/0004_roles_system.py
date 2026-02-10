@@ -45,7 +45,7 @@ def upgrade() -> None:
     )
     op.create_index("idx_role_permissions_role", "role_permissions", ["role_id"])
 
-    # Seed system roles and permissions
+    # Seed system roles
     op.execute("""
         INSERT INTO roles (name, display_name, description, hierarchy_level, is_system_role) VALUES
         ('clubadmin', 'Club Administrator', 'Full access to all club features and member management', 10, true),
@@ -54,9 +54,11 @@ def upgrade() -> None:
         ('treasurer', 'Club Treasurer', 'Manages club finances and payment tracking', 30, true),
         ('secretary', 'Club Secretary', 'Manages communications and administrative tasks', 35, true),
         ('player', 'Player', 'Club member with availability and personal stats access', 50, true),
-        ('sponsor', 'Sponsor', 'View-only access to club information', 90, true);
+        ('sponsor', 'Sponsor', 'View-only access to club information', 90, true)
+    """)
 
-        -- Admin permissions
+    # Admin permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES
@@ -66,55 +68,67 @@ def upgrade() -> None:
             ('view_reports'), ('export_data'), ('view_availability'), ('set_availability'),
             ('view_stats'), ('send_messages'), ('view_messages'), ('select_team')
         ) AS p(key)
-        WHERE r.name = 'clubadmin';
+        WHERE r.name = 'clubadmin'
+    """)
 
-        -- Captain permissions
+    # Captain permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES
             ('select_team'), ('edit_matches'), ('view_availability'), ('manage_tasks'),
             ('send_messages'), ('set_availability'), ('view_stats'), ('view_messages')
         ) AS p(key)
-        WHERE r.name = 'captain';
+        WHERE r.name = 'captain'
+    """)
 
-        -- Vice Captain permissions
+    # Vice Captain permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES
             ('select_team'), ('edit_matches'), ('view_availability'), ('manage_tasks'),
             ('send_messages'), ('set_availability'), ('view_stats'), ('view_messages')
         ) AS p(key)
-        WHERE r.name = 'vice_captain';
+        WHERE r.name = 'vice_captain'
+    """)
 
-        -- Treasurer permissions
+    # Treasurer permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES
             ('manage_payments'), ('view_reports'), ('send_messages'),
             ('set_availability'), ('view_stats'), ('view_messages')
         ) AS p(key)
-        WHERE r.name = 'treasurer';
+        WHERE r.name = 'treasurer'
+    """)
 
-        -- Secretary permissions
+    # Secretary permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES
             ('manage_messages'), ('send_messages'), ('view_reports'),
             ('set_availability'), ('view_stats'), ('view_messages')
         ) AS p(key)
-        WHERE r.name = 'secretary';
+        WHERE r.name = 'secretary'
+    """)
 
-        -- Player permissions
+    # Player permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES ('set_availability'), ('view_stats'), ('send_messages'), ('view_messages')) AS p(key)
-        WHERE r.name = 'player';
+        WHERE r.name = 'player'
+    """)
 
-        -- Sponsor permissions
+    # Sponsor permissions
+    op.execute("""
         INSERT INTO role_permissions (role_id, permission_key)
         SELECT r.id, p.key FROM roles r,
         (VALUES ('view_stats'), ('view_messages'), ('set_availability')) AS p(key)
-        WHERE r.name = 'sponsor';
+        WHERE r.name = 'sponsor'
     """)
 
 

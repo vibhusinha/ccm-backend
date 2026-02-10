@@ -39,7 +39,7 @@ async def seed_match_data(db_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_list_matches(client: AsyncClient, seed_match_data):
-    response = await client.get(f"/api/v1/clubs/{TEST_CLUB_ID}/matches")
+    response = await client.get(f"/api/v1/clubs/{TEST_CLUB_ID}/matches/")
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 1
@@ -49,7 +49,7 @@ async def test_list_matches(client: AsyncClient, seed_match_data):
 async def test_create_match(client: AsyncClient, seed_match_data):
     team_id = str(seed_match_data["team"].id)
     response = await client.post(
-        f"/api/v1/clubs/{TEST_CLUB_ID}/matches",
+        f"/api/v1/clubs/{TEST_CLUB_ID}/matches/",
         json={
             "team_id": team_id,
             "date": "2026-07-01",

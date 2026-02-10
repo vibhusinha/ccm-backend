@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+import datetime as dt
 from decimal import Decimal
 from uuid import UUID
 
@@ -14,8 +14,8 @@ class MatchRead(BaseModel):
     team_id: UUID | None
     fixture_type_id: UUID | None
     series_id: UUID | None
-    date: date
-    time: time
+    date: dt.date
+    time: dt.time
     opponent: str
     venue: str
     type: str
@@ -25,14 +25,14 @@ class MatchRead(BaseModel):
     opponent_score: str | None
     man_of_match_id: UUID | None
     match_report: str | None
-    created_at: datetime
-    updated_at: datetime
+    created_at: dt.datetime
+    updated_at: dt.datetime
 
 
 class MatchCreate(BaseModel):
     team_id: UUID
-    date: date
-    time: time = time(14, 0)
+    date: dt.date
+    time: dt.time = dt.time(14, 0)
     opponent: str = Field(..., max_length=255)
     venue: str = Field(..., pattern="^(Home|Away)$")
     type: str = Field(..., pattern="^(League|Friendly|T20|Net Session)$")
@@ -43,8 +43,8 @@ class MatchCreate(BaseModel):
 
 class MatchUpdate(BaseModel):
     team_id: UUID | None = None
-    date: date | None = None
-    time: time | None = None
+    date: dt.date | None = None
+    time: dt.time | None = None
     opponent: str | None = None
     venue: str | None = Field(None, pattern="^(Home|Away)$")
     type: str | None = Field(None, pattern="^(League|Friendly|T20|Net Session)$")

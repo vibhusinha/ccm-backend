@@ -28,7 +28,7 @@ async def seed_club_and_member(db_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_list_members(client: AsyncClient, seed_club_and_member):
-    response = await client.get(f"/api/v1/clubs/{TEST_CLUB_ID}/members")
+    response = await client.get(f"/api/v1/clubs/{TEST_CLUB_ID}/members/")
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 1
@@ -42,7 +42,7 @@ async def test_add_member(client: AsyncClient, seed_club_and_member, db_session:
     await db_session.flush()
 
     response = await client.post(
-        f"/api/v1/clubs/{TEST_CLUB_ID}/members",
+        f"/api/v1/clubs/{TEST_CLUB_ID}/members/",
         json={"user_id": str(new_user_id), "role": "player"},
     )
     assert response.status_code == 201

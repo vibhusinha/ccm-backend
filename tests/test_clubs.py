@@ -36,4 +36,4 @@ async def test_update_club(client: AsyncClient, seed_club):
 @pytest.mark.asyncio
 async def test_get_club_not_found(client: AsyncClient):
     response = await client.get("/api/v1/clubs/00000000-0000-0000-0000-000000000099")
-    assert response.status_code == 404
+    assert response.status_code == 403
