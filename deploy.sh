@@ -20,7 +20,7 @@ declare -A PORTS=(
 )
 
 PORT="${PORTS[$SERVICE_NAME]:?Unknown service: $SERVICE_NAME}"
-IMAGE="${ECR_REGISTRY}/ccm-${SERVICE_NAME}:${IMAGE_TAG}"
+IMAGE="${ECR_REGISTRY}/ccm-backend:${SERVICE_NAME}-${IMAGE_TAG}"
 CONTAINER_NAME="ccm-${SERVICE_NAME}"
 
 echo "Deploying ${SERVICE_NAME} service..."

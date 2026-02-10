@@ -19,30 +19,20 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
-    const serviceNames = [
-      'ccm-auth',
-      'ccm-clubs',
-      'ccm-matches',
-      'ccm-scoring',
-      'ccm-communication',
-      'ccm-commerce',
-    ];
-
-    // ECR repositories for each microservice
-    const repositories: ecr.Repository[] = serviceNames.map((name) => {
-      return new ecr.Repository(this, `Repo-${name}`, {
-        repositoryName: `${name}-${props.envName}`,
-        removalPolicy: props.envName === 'production'
-          ? cdk.RemovalPolicy.RETAIN
-          : cdk.RemovalPolicy.DESTROY,
-        emptyOnDelete: props.envName !== 'production',
-        lifecycleRules: [
-          {
-            maxImageCount: 10,
-            description: 'Keep only last 10 images',
-          },
-        ],
-      });
+    // Single ECR repository for all microservice images
+    // Images are tagged per service: auth-latest, clubs-latest, auth-<sha>, etc.
+    const repository = new ecr.Repository(this, 'EcrRepo', {
+      repositoryName: `ccm-backend-${props.envName}`,
+      removalPolicy: props.envName === 'production'
+        ? cdk.RemovalPolicy.RETAIN
+        : cdk.RemovalPolicy.DESTROY,
+      emptyOnDelete: props.envName !== 'production',
+      lifecycleRules: [
+        {
+          maxImageCount: 60, // ~10 per service x 6 services
+          description: 'Keep last 60 images',
+        },
+      ],
     });
 
     // IAM role for EC2 instance
@@ -56,9 +46,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // ECR pull permissions
-    repositories.forEach((repo) => {
-      repo.grantPull(instanceRole);
-    });
+    repository.grantPull(instanceRole);
 
     // Allow reading Secrets Manager (for DB credentials)
     instanceRole.addToPolicy(new iam.PolicyStatement({
@@ -223,7 +211,7 @@ export class BackendStack extends cdk.Stack {
       '# Pull and restart each service',
       'for SERVICE in "${!SERVICES[@]}"; do',
       '  PORT=${SERVICES[$SERVICE]}',
-      '  IMAGE="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/$SERVICE-$ENV:latest"',
+      '  IMAGE="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/ccm-backend-$ENV:${SERVICE#ccm-}-latest"',
       '',
       '  echo "Deploying $SERVICE on port $PORT..."',
       '  docker pull $IMAGE',
@@ -309,11 +297,9 @@ export class BackendStack extends cdk.Stack {
       description: 'API domain name',
     });
 
-    repositories.forEach((repo, index) => {
-      new cdk.CfnOutput(this, `EcrRepo-${serviceNames[index]}`, {
-        value: repo.repositoryUri,
-        description: `ECR repository URI for ${serviceNames[index]}`,
-      });
+    new cdk.CfnOutput(this, 'EcrRepoUri', {
+      value: repository.repositoryUri,
+      description: 'ECR repository URI for all service images',
     });
   }
 }
