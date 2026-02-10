@@ -9,7 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models.club import Club
     from app.models.profile import Profile
 
 
@@ -27,7 +26,6 @@ class RegistrationRequest(Base):
     )
     club_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("clubs.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -48,7 +46,6 @@ class RegistrationRequest(Base):
     rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     user: Mapped["Profile"] = relationship(foreign_keys=[user_id])
-    club: Mapped["Club"] = relationship()
 
     __table_args__ = (
         CheckConstraint(

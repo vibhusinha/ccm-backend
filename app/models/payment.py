@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Numeric, String, Text, text
+from sqlalchemy import CheckConstraint, Date, Numeric, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,10 +15,10 @@ class Payment(Base, ClubScopedMixin, TimestampMixin):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     player_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True), nullable=False, index=True
     )
     match_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("matches.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     type: Mapped[str] = mapped_column(String(30), nullable=False)
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
@@ -33,7 +33,7 @@ class Payment(Base, ClubScopedMixin, TimestampMixin):
     bank_reference: Mapped[str | None] = mapped_column(String(255))
     received_date: Mapped[date | None] = mapped_column(Date)
     season_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("seasons.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
 
     __table_args__ = (

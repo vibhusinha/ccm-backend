@@ -29,5 +29,83 @@ services:
       postgres:
         condition: service_healthy
 
+  auth:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: auth
+    container_name: ccm-auth
+    ports:
+      - "8001:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  clubs:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: clubs
+    container_name: ccm-clubs
+    ports:
+      - "8002:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  matches:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: matches
+    container_name: ccm-matches
+    ports:
+      - "8003:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  scoring:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: scoring
+    container_name: ccm-scoring
+    ports:
+      - "8004:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  communication:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: communication
+    container_name: ccm-communication
+    ports:
+      - "8005:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  commerce:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: commerce
+    container_name: ccm-commerce
+    ports:
+      - "8006:8000"
+    env_file: .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   ccm_pgdata:

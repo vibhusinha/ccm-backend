@@ -9,7 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from app.models.club_member import ClubMember
     from app.models.season import Season
     from app.models.team import Team
 
@@ -31,7 +30,6 @@ class Club(Base, TimestampMixin):
     suspended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     suspension_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    members: Mapped[list["ClubMember"]] = relationship(back_populates="club")
     seasons: Mapped[list["Season"]] = relationship(back_populates="club")
     teams: Mapped[list["Team"]] = relationship(back_populates="club")
 

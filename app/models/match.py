@@ -11,7 +11,6 @@ from app.models.base import Base, ClubScopedMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.match_availability import MatchAvailability
-    from app.models.team import Team
     from app.models.team_selection import TeamSelection
 
 
@@ -20,10 +19,10 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     season_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("seasons.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     team_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), index=True
+        UUID(as_uuid=True), index=True
     )
     fixture_type_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("fixture_types.id", ondelete="SET NULL")
@@ -41,7 +40,7 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
     our_score: Mapped[str | None] = mapped_column(String(50))
     opponent_score: Mapped[str | None] = mapped_column(String(50))
     man_of_match_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     match_report: Mapped[str | None] = mapped_column(Text)
     result: Mapped[str | None] = mapped_column(String(20))
@@ -54,7 +53,6 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
     location_address: Mapped[str | None] = mapped_column(Text)
     location_postcode: Mapped[str | None] = mapped_column(String(20))
 
-    team: Mapped["Team | None"] = relationship(back_populates="matches")
     availability: Mapped[list["MatchAvailability"]] = relationship(back_populates="match")
     selections: Mapped[list["TeamSelection"]] = relationship(back_populates="match")
 

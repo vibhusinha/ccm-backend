@@ -17,7 +17,7 @@ class FixtureSeries(Base, ClubScopedMixin, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("fixture_types.id", ondelete="SET NULL")
     )
     season_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("seasons.id", ondelete="CASCADE")
+        UUID(as_uuid=True), index=True
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     recurrence_rule: Mapped[str | None] = mapped_column(Text)
@@ -27,6 +27,6 @@ class FixtureSeries(Base, ClubScopedMixin, TimestampMixin):
     default_venue: Mapped[str | None] = mapped_column(Text)
     default_is_home: Mapped[bool] = mapped_column(Boolean, default=True)
     default_team_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("teams.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     default_fee_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"))

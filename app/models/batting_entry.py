@@ -17,7 +17,7 @@ class BattingEntry(Base):
         UUID(as_uuid=True), ForeignKey("match_innings.id", ondelete="CASCADE"), nullable=False
     )
     player_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     opposition_player_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("match_opposition_players.id", ondelete="SET NULL")

@@ -13,10 +13,10 @@ class Player(Base, ClubScopedMixin, TimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     club_member_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("club_members.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str | None] = mapped_column(String(255))

@@ -1,0 +1,194 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy target'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      service:
+        description: 'Service to deploy (or "all")'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - auth
+          - clubs
+          - matches
+          - scoring
+          - communication
+          - commerce
+
+concurrency:
+  group: deploy-backend-${{ github.event.inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: eu-west-2
+
+jobs:
+  determine-services:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set-matrix.outputs.services }}
+    steps:
+      - id: set-matrix
+        run: |
+          SERVICE="${{ github.event.inputs.service || 'all' }}"
+          if [ "$SERVICE" = "all" ]; then
+            echo 'services=["auth","clubs","matches","scoring","communication","commerce"]' >> $GITHUB_OUTPUT
+          else
+            echo "services=[\"$SERVICE\"]" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-push:
+    needs: determine-services
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.determine-services.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          build-args: SERVICE_NAME=${{ matrix.service }}
+          tags: |
+            ${{ secrets.ECR_REGISTRY }}/ccm-${{ matrix.service }}:latest
+            ${{ secrets.ECR_REGISTRY }}/ccm-${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy-staging:
+    needs: build-and-push
+    if: ${{ github.event.inputs.environment != 'production' }}
+    runs-on: ubuntu-latest
+    environment: staging
+    strategy:
+      max-parallel: 2
+      matrix:
+        service: ${{ fromJson(needs.determine-services.outputs.services) }}
+      fail-fast: false
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set service port
+        id: port
+        run: |
+          declare -A PORTS=([auth]=8001 [clubs]=8002 [matches]=8003 [scoring]=8004 [communication]=8005 [commerce]=8006)
+          echo "port=${PORTS[${{ matrix.service }}]}" >> $GITHUB_OUTPUT
+
+      - name: Set database URL secret name
+        id: db
+        run: |
+          SERVICE_UPPER=$(echo "${{ matrix.service }}" | tr '[:lower:]' '[:upper:]')
+          echo "url_key=STAGING_DB_${SERVICE_UPPER}_URL" >> $GITHUB_OUTPUT
+
+      - name: Run migrations and deploy via SSM
+        run: |
+          SERVICE="${{ matrix.service }}"
+          PORT="${{ steps.port.outputs.port }}"
+          IMAGE="${{ secrets.ECR_REGISTRY }}/ccm-${SERVICE}:latest"
+          CONTAINER="ccm-${SERVICE}"
+
+          # Get the database URL for this service
+          DB_URL_KEY="${{ steps.db.outputs.url_key }}"
+
+          aws ssm send-command \
+            --instance-ids "${{ secrets.STAGING_EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --timeout-seconds 300 \
+            --parameters commands='[
+              "set -e",
+              "aws ecr get-login-password --region '"${{ env.AWS_REGION }}"' | docker login --username AWS --password-stdin '"${{ secrets.ECR_REGISTRY }}"'",
+              "docker pull '"${IMAGE}"'",
+              "docker run --rm --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
+              "docker stop '"${CONTAINER}"' 2>/dev/null || true",
+              "docker rm '"${CONTAINER}"' 2>/dev/null || true",
+              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"'",
+              "sleep 5",
+              "curl -sf http://127.0.0.1:'"${PORT}"'/api/v1/health || echo \"Health check pending...\""
+            ]' \
+            --output text \
+            --query "Command.CommandId"
+
+  deploy-production:
+    needs: build-and-push
+    if: ${{ github.event.inputs.environment == 'production' }}
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      max-parallel: 1
+      matrix:
+        service: ${{ fromJson(needs.determine-services.outputs.services) }}
+      fail-fast: true
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set service port
+        id: port
+        run: |
+          declare -A PORTS=([auth]=8001 [clubs]=8002 [matches]=8003 [scoring]=8004 [communication]=8005 [commerce]=8006)
+          echo "port=${PORTS[${{ matrix.service }}]}" >> $GITHUB_OUTPUT
+
+      - name: Run migrations and deploy via SSM
+        run: |
+          SERVICE="${{ matrix.service }}"
+          PORT="${{ steps.port.outputs.port }}"
+          IMAGE="${{ secrets.ECR_REGISTRY }}/ccm-${SERVICE}:${{ github.sha }}"
+          CONTAINER="ccm-${SERVICE}"
+
+          aws ssm send-command \
+            --instance-ids "${{ secrets.PROD_EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --timeout-seconds 300 \
+            --parameters commands='[
+              "set -e",
+              "aws ecr get-login-password --region '"${{ env.AWS_REGION }}"' | docker login --username AWS --password-stdin '"${{ secrets.ECR_REGISTRY }}"'",
+              "docker pull '"${IMAGE}"'",
+              "docker run --rm --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
+              "docker stop '"${CONTAINER}"' 2>/dev/null || true",
+              "docker rm '"${CONTAINER}"' 2>/dev/null || true",
+              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"'",
+              "sleep 5",
+              "curl -sf http://127.0.0.1:'"${PORT}"'/api/v1/health || echo \"Health check pending...\""
+            ]' \
+            --output text \
+            --query "Command.CommandId"

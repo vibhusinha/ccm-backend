@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy import Boolean, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -17,9 +17,9 @@ class MediaGallery(Base, ClubScopedMixin, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     cover_image_url: Mapped[str | None] = mapped_column(Text)
     match_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("matches.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     is_published: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     created_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )

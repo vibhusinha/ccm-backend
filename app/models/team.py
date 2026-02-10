@@ -9,7 +9,6 @@ from app.models.base import Base, ClubScopedMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.club import Club
-    from app.models.match import Match
     from app.models.player import Player
 
 
@@ -41,7 +40,6 @@ class Team(Base, ClubScopedMixin, TimestampMixin):
     club: Mapped["Club"] = relationship(back_populates="teams")
     captain: Mapped["Player | None"] = relationship(foreign_keys=[captain_id])
     vice_captain: Mapped["Player | None"] = relationship(foreign_keys=[vice_captain_id])
-    matches: Mapped[list["Match"]] = relationship(back_populates="team")
 
     __table_args__ = (
         CheckConstraint(

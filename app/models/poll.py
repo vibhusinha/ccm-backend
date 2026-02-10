@@ -19,7 +19,7 @@ class Poll(Base, ClubScopedMixin):
         nullable=False, index=True,
     )
     created_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     question: Mapped[str] = mapped_column(String(500), nullable=False)
     is_closed: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")

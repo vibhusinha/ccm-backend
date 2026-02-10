@@ -9,7 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models.club import Club
     from app.models.profile import Profile
 
 
@@ -21,12 +20,11 @@ class ClubMember(Base):
         UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True
     )
     club_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True), nullable=False, index=True
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False)
     joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    club: Mapped["Club"] = relationship(back_populates="members")
     profile: Mapped["Profile"] = relationship()
 
     __table_args__ = (

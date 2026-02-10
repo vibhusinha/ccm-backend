@@ -10,7 +10,6 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.match import Match
-    from app.models.player import Player
 
 
 class TeamSelection(Base):
@@ -21,7 +20,7 @@ class TeamSelection(Base):
         UUID(as_uuid=True), ForeignKey("matches.id", ondelete="CASCADE"), nullable=False
     )
     player_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True), nullable=False, index=True
     )
     batting_position: Mapped[int | None] = mapped_column(Integer)
     is_captain: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -30,7 +29,6 @@ class TeamSelection(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     match: Mapped["Match"] = relationship(back_populates="selections")
-    player: Mapped["Player"] = relationship()
 
     __table_args__ = (
         UniqueConstraint("match_id", "player_id", name="uq_selection_match_player"),

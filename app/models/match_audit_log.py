@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,16 +13,16 @@ class MatchAuditLog(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     match_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("matches.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True), nullable=False, index=True
     )
     player_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     action: Mapped[str] = mapped_column(String(100), nullable=False)
     previous_state: Mapped[str | None] = mapped_column(String(50))
     new_state: Mapped[str | None] = mapped_column(String(50))
     actor_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     reason: Mapped[str | None] = mapped_column(Text)
     details: Mapped[dict] = mapped_column(JSON, default=dict)

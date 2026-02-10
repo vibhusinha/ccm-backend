@@ -18,7 +18,7 @@ class Message(Base, TimestampMixin):
         nullable=False, index=True,
     )
     sender_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")

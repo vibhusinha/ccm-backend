@@ -10,7 +10,6 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.match import Match
-    from app.models.player import Player
 
 
 class MatchAvailability(Base):
@@ -21,7 +20,7 @@ class MatchAvailability(Base):
         UUID(as_uuid=True), ForeignKey("matches.id", ondelete="CASCADE"), nullable=False, index=True
     )
     player_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True), nullable=False, index=True
     )
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
@@ -29,7 +28,6 @@ class MatchAvailability(Base):
     )
 
     match: Mapped["Match"] = relationship(back_populates="availability")
-    player: Mapped["Player"] = relationship()
 
     __table_args__ = (
         UniqueConstraint("match_id", "player_id", name="uq_availability_match_player"),

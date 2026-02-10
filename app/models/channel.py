@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy import Boolean, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,5 +18,5 @@ class Channel(Base, ClubScopedMixin, TimestampMixin):
     channel_type: Mapped[str] = mapped_column(String(20), nullable=False, server_default="general")
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     created_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )

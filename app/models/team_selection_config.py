@@ -1,7 +1,7 @@
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import Boolean, ForeignKey, Integer, Numeric
+from sqlalchemy import Boolean, Integer, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,7 +13,7 @@ class TeamSelectionConfig(Base, TimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     club_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False, unique=True
+        UUID(as_uuid=True), nullable=False, unique=True, index=True
     )
     performance_weight: Mapped[Decimal] = mapped_column(Numeric(4, 2), default=Decimal("0.30"))
     fairness_weight: Mapped[Decimal] = mapped_column(Numeric(4, 2), default=Decimal("0.25"))

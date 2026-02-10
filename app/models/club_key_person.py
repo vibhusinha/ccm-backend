@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,6 +18,6 @@ class ClubKeyPerson(Base, ClubScopedMixin, TimestampMixin):
     email: Mapped[str | None] = mapped_column(String(255))
     phone: Mapped[str | None] = mapped_column(String(50))
     member_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("club_members.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
     display_order: Mapped[int] = mapped_column(Integer, default=0)

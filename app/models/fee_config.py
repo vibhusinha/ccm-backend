@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Numeric
+from sqlalchemy import Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,9 +15,9 @@ class FeeConfig(Base, TimestampMixin):
     )
     club_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("clubs.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
+        index=True,
     )
     membership_fee: Mapped[float] = mapped_column(Numeric(10, 2), default=150.00)
     match_fee: Mapped[float] = mapped_column(Numeric(10, 2), default=15.00)

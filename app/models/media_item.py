@@ -22,5 +22,5 @@ class MediaItem(Base, ClubScopedMixin, TimestampMixin):
     url: Mapped[str] = mapped_column(Text, nullable=False)
     thumbnail_url: Mapped[str | None] = mapped_column(Text)
     uploaded_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="SET NULL")
+        UUID(as_uuid=True), index=True
     )
