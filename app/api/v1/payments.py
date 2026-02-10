@@ -1,7 +1,9 @@
+from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Path
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -23,6 +25,7 @@ from app.services.payment_service import PaymentService
 router = APIRouter(prefix="/clubs/{club_id}", tags=["payments"])
 player_payments_router = APIRouter(prefix="/players/{player_id}", tags=["payments"])
 payment_actions_router = APIRouter(prefix="/payments/{payment_id}", tags=["payments"])
+stripe_router = APIRouter(prefix="/payments", tags=["payments"])
 
 
 @router.get("/payments/", response_model=list[PaymentRead])
@@ -186,3 +189,42 @@ async def update_payment_status(
     service = PaymentService(db, payment.club_id)
     updated = await service.update_status(payment_id, body.status, body.paid_date)
     return PaymentRead.model_validate(updated)
+
+
+# --- Stripe Integration Stubs ---
+
+
+class CreatePaymentIntentInput(BaseModel):
+    amount: Decimal
+    currency: str = "gbp"
+    payment_id: UUID | None = None
+
+
+class UpdatePaymentStatusInput(BaseModel):
+    payment_intent_id: str
+    status: str
+
+
+@stripe_router.post("/create-intent")
+async def create_payment_intent(
+    body: CreatePaymentIntentInput,
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    # Stub: In production, this would call Stripe API
+    return {
+        "client_secret": "pi_stub_secret",
+        "payment_intent_id": "pi_stub_" + str(body.payment_id or "manual"),
+        "amount": float(body.amount),
+        "currency": body.currency,
+    }
+
+
+@stripe_router.post("/update-status")
+async def update_stripe_payment_status(
+    body: UpdatePaymentStatusInput,
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    # Stub: In production, this would verify with Stripe and update the payment
+    return {"success": True, "payment_intent_id": body.payment_intent_id, "status": body.status}

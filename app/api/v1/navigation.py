@@ -1,11 +1,13 @@
+import copy
 import uuid
 
 from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/navigation", tags=["navigation"])
 
 # Hardcoded default navigation items matching the frontend's expected shape.
-# This is a stub — a full navigation management system can be built later.
+# In-memory store — persisted across requests but not across restarts.
 DEFAULT_NAV_ITEMS = [
     {
         "id": str(uuid.uuid5(uuid.NAMESPACE_DNS, "home")),
@@ -94,6 +96,14 @@ DEFAULT_NAV_ITEMS = [
 ]
 
 
+def _find_by_key(key: str) -> dict | None:
+    return next((item for item in DEFAULT_NAV_ITEMS if item["key"] == key), None)
+
+
+def _find_by_id(item_id: str) -> dict | None:
+    return next((item for item in DEFAULT_NAV_ITEMS if item["id"] == item_id), None)
+
+
 @router.get("/items")
 async def get_navigation_items(
     role: str | None = Query(None),
@@ -111,4 +121,76 @@ async def get_navigation_items(
 @router.get("/items/all")
 async def get_all_navigation_items() -> list[dict]:
     """Return all navigation items including disabled ones (admin view)."""
+    return DEFAULT_NAV_ITEMS
+
+
+class ReorderInput(BaseModel):
+    keys: list[str]
+
+
+@router.post("/reorder")
+async def reorder_navigation_items(body: ReorderInput) -> list[dict]:
+    """Reorder navigation items by providing keys in desired order."""
+    for i, key in enumerate(body.keys):
+        item = _find_by_key(key)
+        if item:
+            item["display_order"] = i + 1
+    DEFAULT_NAV_ITEMS.sort(key=lambda x: x["display_order"])
+    return DEFAULT_NAV_ITEMS
+
+
+@router.post("/items/{key}/toggle")
+async def toggle_navigation_item(key: str) -> dict:
+    """Toggle a navigation item's enabled status."""
+    item = _find_by_key(key)
+    if not item:
+        return {"error": "Item not found"}
+    item["is_enabled"] = not item["is_enabled"]
+    return item
+
+
+class NavItemUpdate(BaseModel):
+    label: str | None = None
+    icon: str | None = None
+    description: str | None = None
+    is_enabled: bool | None = None
+    hide_from_mobile_tabs: bool | None = None
+    hide_from_desktop_sidebar: bool | None = None
+    visible_to_roles: list[str] | None = None
+
+
+@router.patch("/items/{key}")
+async def update_navigation_item(key: str, body: NavItemUpdate) -> dict:
+    """Update a navigation item by key."""
+    item = _find_by_key(key)
+    if not item:
+        return {"error": "Item not found"}
+    for field, value in body.model_dump(exclude_unset=True).items():
+        item[field] = value
+    return item
+
+
+@router.patch("/items/by-id/{item_id}")
+async def update_navigation_item_by_id(item_id: str, body: NavItemUpdate) -> dict:
+    """Update a navigation item by ID."""
+    item = _find_by_id(item_id)
+    if not item:
+        return {"error": "Item not found"}
+    for field, value in body.model_dump(exclude_unset=True).items():
+        item[field] = value
+    return item
+
+
+class BatchReorderInput(BaseModel):
+    items: list[dict]  # [{key, display_order}]
+
+
+@router.post("/batch-reorder")
+async def batch_reorder_navigation_items(body: BatchReorderInput) -> list[dict]:
+    """Batch reorder navigation items."""
+    for entry in body.items:
+        item = _find_by_key(entry.get("key", ""))
+        if item and "display_order" in entry:
+            item["display_order"] = entry["display_order"]
+    DEFAULT_NAV_ITEMS.sort(key=lambda x: x["display_order"])
     return DEFAULT_NAV_ITEMS

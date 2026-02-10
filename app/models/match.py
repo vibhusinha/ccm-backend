@@ -50,6 +50,9 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
     toss_won_by: Mapped[str | None] = mapped_column(String(20))
     toss_decision: Mapped[str | None] = mapped_column(String(10))
     home_batted_first: Mapped[bool | None] = mapped_column()
+    location_name: Mapped[str | None] = mapped_column(String(200))
+    location_address: Mapped[str | None] = mapped_column(Text)
+    location_postcode: Mapped[str | None] = mapped_column(String(20))
 
     team: Mapped["Team | None"] = relationship(back_populates="matches")
     availability: Mapped[list["MatchAvailability"]] = relationship(back_populates="match")

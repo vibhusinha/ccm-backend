@@ -3,10 +3,12 @@ from app.models.audit_log import AuditLog
 from app.models.base import Base
 from app.models.batting_entry import BattingEntry
 from app.models.bowling_entry import BowlingEntry
+from app.models.channel import Channel
 from app.models.club import Club
 from app.models.club_key_person import ClubKeyPerson
 from app.models.club_member import ClubMember
 from app.models.fall_of_wicket import FallOfWicket
+from app.models.faq import FAQ
 from app.models.fee_config import FeeConfig
 from app.models.fixture_series import FixtureSeries
 from app.models.fixture_type import FixtureType
@@ -16,6 +18,16 @@ from app.models.match_availability import MatchAvailability
 from app.models.match_innings import MatchInnings
 from app.models.match_opposition_player import MatchOppositionPlayer
 from app.models.match_participation import MatchParticipation
+from app.models.media_gallery import MediaGallery
+from app.models.media_item import MediaItem
+from app.models.media_tag import MediaTag
+from app.models.merchandise_category import MerchandiseCategory
+from app.models.merchandise_item import MerchandiseItem
+from app.models.merchandise_order import MerchandiseOrder
+from app.models.merchandise_order_item import MerchandiseOrderItem
+from app.models.merchandise_variant import MerchandiseVariant
+from app.models.message import Message
+from app.models.message_reaction import MessageReaction
 from app.models.notification import Notification
 from app.models.payment import Payment
 from app.models.pending_club_registration import PendingClubRegistration
@@ -24,6 +36,9 @@ from app.models.platform_setting import PlatformSetting
 from app.models.player import Player
 from app.models.player_match_stats import PlayerMatchStats
 from app.models.player_selection_override import PlayerSelectionOverride
+from app.models.poll import Poll
+from app.models.poll_option import PollOption
+from app.models.poll_vote import PollVote
 from app.models.practice_attendance import PracticeAttendance
 from app.models.profile import Profile
 from app.models.push_token import PushToken
@@ -43,10 +58,12 @@ __all__ = [
     "Base",
     "BattingEntry",
     "BowlingEntry",
+    "Channel",
     "Club",
     "ClubKeyPerson",
     "ClubMember",
     "FallOfWicket",
+    "FAQ",
     "FeeConfig",
     "FixtureSeries",
     "FixtureType",
@@ -56,6 +73,16 @@ __all__ = [
     "MatchInnings",
     "MatchOppositionPlayer",
     "MatchParticipation",
+    "MediaGallery",
+    "MediaItem",
+    "MediaTag",
+    "MerchandiseCategory",
+    "MerchandiseItem",
+    "MerchandiseOrder",
+    "MerchandiseOrderItem",
+    "MerchandiseVariant",
+    "Message",
+    "MessageReaction",
     "Notification",
     "Payment",
     "PendingClubRegistration",
@@ -64,6 +91,9 @@ __all__ = [
     "Player",
     "PlayerMatchStats",
     "PlayerSelectionOverride",
+    "Poll",
+    "PollOption",
+    "PollVote",
     "PracticeAttendance",
     "Profile",
     "PushToken",

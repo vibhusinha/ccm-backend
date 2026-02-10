@@ -5,13 +5,17 @@ from app.api.v1 import (
     auth,
     availability,
     clubs,
+    faqs,
     fee_config,
     fixture_series,
     fixture_types,
     health,
     lifecycle,
     matches,
+    media,
     members,
+    merchandise,
+    messaging,
     navigation,
     notifications,
     payments,
@@ -66,13 +70,16 @@ api_router.include_router(availability.router)
 api_router.include_router(availability.bulk_router)
 api_router.include_router(selections.router)
 api_router.include_router(fixture_types.router)
+api_router.include_router(fixture_types.type_action_router)
 api_router.include_router(fixture_series.router)
 api_router.include_router(announcements.router)
+api_router.include_router(faqs.router)
 
 # Payments & Finance
 api_router.include_router(payments.router)
 api_router.include_router(payments.player_payments_router)
 api_router.include_router(payments.payment_actions_router)
+api_router.include_router(payments.stripe_router)
 api_router.include_router(fee_config.router)
 
 # Notifications
@@ -98,3 +105,23 @@ api_router.include_router(recommendations.club_router)
 api_router.include_router(recommendations.player_router)
 api_router.include_router(recommendations.override_router)
 api_router.include_router(recommendations.fixture_router)
+
+# Messaging
+api_router.include_router(messaging.channel_router)
+api_router.include_router(messaging.message_channel_router)
+api_router.include_router(messaging.message_action_router)
+api_router.include_router(messaging.poll_option_router)
+api_router.include_router(messaging.poll_action_router)
+
+# Merchandise
+api_router.include_router(merchandise.club_router)
+api_router.include_router(merchandise.item_router)
+api_router.include_router(merchandise.variant_router)
+api_router.include_router(merchandise.order_router)
+api_router.include_router(merchandise.image_router)
+
+# Media
+api_router.include_router(media.club_router)
+api_router.include_router(media.gallery_router)
+api_router.include_router(media.item_router)
+api_router.include_router(media.tag_router)

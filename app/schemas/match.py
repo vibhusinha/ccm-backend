@@ -31,6 +31,9 @@ class MatchRead(BaseModel):
     toss_won_by: str | None = None
     toss_decision: str | None = None
     home_batted_first: bool | None = None
+    location_name: str | None = None
+    location_address: str | None = None
+    location_postcode: str | None = None
     created_at: dt.datetime
     updated_at: dt.datetime
 
