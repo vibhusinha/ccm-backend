@@ -61,7 +61,7 @@ export class DatabaseStack extends cdk.Stack {
       storageType: rds.StorageType.GP3,
       storageEncrypted: true,
       multiAz: false,
-      backupRetention: cdk.Duration.days(props.envName === 'production' ? 14 : 7),
+      backupRetention: cdk.Duration.days(props.envName === 'production' ? 7 : 1),
       deletionProtection: props.envName === 'production',
       removalPolicy: props.envName === 'production'
         ? cdk.RemovalPolicy.RETAIN

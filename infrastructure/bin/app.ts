@@ -50,7 +50,6 @@ new DatabaseStack(app, `CCM-${env}-Database`, {
 // V2 Frontend (S3 + CloudFront)
 new V2FrontendStack(app, `CCM-${env}-V2Frontend`, {
   env: awsEnv,
-  crossRegionReferences: true,
   envName: env,
   s3BucketName: envConfig.v2S3BucketName,
   domainName: envConfig.v2DomainName,

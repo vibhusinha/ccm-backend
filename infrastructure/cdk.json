@@ -3,9 +3,7 @@
   "context": {
     "staging": {
       "v2S3BucketName": "ccm-v2-staging-web",
-      "v2DomainName": "v2-staging.crickitup.com",
       "backendDomainName": "api-staging.crickitup.com",
-      "certificateArn": "arn:aws:acm:us-east-1:418884736370:certificate/cc6941b6-887e-4179-94c6-573fba1ed2ee",
       "dbInstanceClass": "db.t4g.micro",
       "dbAllocatedStorage": 20,
       "dbName": "ccm_default",
@@ -14,9 +12,7 @@
     },
     "production": {
       "v2S3BucketName": "ccm-v2-prod-web",
-      "v2DomainName": "v2.crickitup.com",
       "backendDomainName": "api.crickitup.com",
-      "certificateArn": "arn:aws:acm:us-east-1:418884736370:certificate/cc6941b6-887e-4179-94c6-573fba1ed2ee",
       "dbInstanceClass": "db.t4g.small",
       "dbAllocatedStorage": 20,
       "dbName": "ccm_default",

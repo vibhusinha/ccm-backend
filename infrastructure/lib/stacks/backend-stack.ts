@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as route53 from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 
 export interface BackendStackProps extends cdk.StackProps {
@@ -269,17 +268,8 @@ export class BackendStack extends cdk.Stack {
       instanceId: this.instance.instanceId,
     });
 
-    // Route 53 A record for API domain
-    const hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-      domainName: 'crickitup.com',
-    });
-
-    new route53.ARecord(this, 'ApiARecord', {
-      zone: hostedZone,
-      recordName: props.backendDomainName,
-      target: route53.RecordTarget.fromIpAddresses(this.elasticIp.ref),
-      ttl: cdk.Duration.minutes(5),
-    });
+    // NOTE: Route 53 DNS record skipped — configure DNS manually when ready
+    // Point api-staging.crickitup.com A record to the Elastic IP below
 
     // Outputs
     new cdk.CfnOutput(this, 'InstanceId', {
