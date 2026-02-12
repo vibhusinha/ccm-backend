@@ -39,15 +39,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       services: ${{ steps.set-matrix.outputs.services }}
+      ecr_repo: ${{ steps.set-matrix.outputs.ecr_repo }}
     steps:
       - id: set-matrix
         run: |
           SERVICE="${{ github.event.inputs.service || 'all' }}"
+          ENV="${{ github.event.inputs.environment || 'staging' }}"
           if [ "$SERVICE" = "all" ]; then
             echo 'services=["auth","clubs","matches","scoring","communication","commerce"]' >> $GITHUB_OUTPUT
           else
             echo "services=[\"$SERVICE\"]" >> $GITHUB_OUTPUT
           fi
+          echo "ecr_repo=ccm-backend-${ENV}" >> $GITHUB_OUTPUT
 
   build-and-push:
     needs: determine-services
@@ -81,13 +84,13 @@ jobs:
           push: true
           build-args: SERVICE_NAME=${{ matrix.service }}
           tags: |
-            ${{ secrets.ECR_REGISTRY }}/ccm-backend:${{ matrix.service }}-latest
-            ${{ secrets.ECR_REGISTRY }}/ccm-backend:${{ matrix.service }}-${{ github.sha }}
+            ${{ secrets.ECR_REGISTRY }}/${{ needs.determine-services.outputs.ecr_repo }}:${{ matrix.service }}-latest
+            ${{ secrets.ECR_REGISTRY }}/${{ needs.determine-services.outputs.ecr_repo }}:${{ matrix.service }}-${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   deploy-staging:
-    needs: build-and-push
+    needs: [build-and-push, determine-services]
     if: ${{ github.event.inputs.environment != 'production' }}
     runs-on: ubuntu-latest
     environment: staging
@@ -120,7 +123,7 @@ jobs:
         run: |
           SERVICE="${{ matrix.service }}"
           PORT="${{ steps.port.outputs.port }}"
-          IMAGE="${{ secrets.ECR_REGISTRY }}/ccm-backend:${SERVICE}-latest"
+          IMAGE="${{ secrets.ECR_REGISTRY }}/${{ needs.determine-services.outputs.ecr_repo }}:${SERVICE}-latest"
           CONTAINER="ccm-${SERVICE}"
 
           aws ssm send-command \
@@ -142,7 +145,7 @@ jobs:
             --query "Command.CommandId"
 
   deploy-production:
-    needs: build-and-push
+    needs: [build-and-push, determine-services]
     if: ${{ github.event.inputs.environment == 'production' }}
     runs-on: ubuntu-latest
     environment: production
@@ -169,7 +172,7 @@ jobs:
         run: |
           SERVICE="${{ matrix.service }}"
           PORT="${{ steps.port.outputs.port }}"
-          IMAGE="${{ secrets.ECR_REGISTRY }}/ccm-backend:${SERVICE}-${{ github.sha }}"
+          IMAGE="${{ secrets.ECR_REGISTRY }}/${{ needs.determine-services.outputs.ecr_repo }}:${SERVICE}-${{ github.sha }}"
           CONTAINER="ccm-${SERVICE}"
 
           aws ssm send-command \
