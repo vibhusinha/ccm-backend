@@ -22,6 +22,7 @@ class PlayerRead(BaseModel):
     team_id: UUID | None
     is_core: bool
     member_since: date | None
+    play_cricket_id: int | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -37,6 +38,7 @@ class PlayerCreate(BaseModel):
     is_core: bool = False
     user_id: UUID | None = None
     club_member_id: UUID | None = None
+    play_cricket_id: int | None = None
 
 
 class PlayerUpdate(BaseModel):
@@ -50,3 +52,4 @@ class PlayerUpdate(BaseModel):
     is_core: bool | None = None
     user_id: UUID | None = None
     club_member_id: UUID | None = None
+    play_cricket_id: int | None = None

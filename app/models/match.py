@@ -3,7 +3,7 @@ from datetime import date, time
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Numeric, String, Text, Time
+from sqlalchemy import CheckConstraint, Date, ForeignKey, Integer, Numeric, String, Text, Time
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -52,6 +52,7 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
     location_name: Mapped[str | None] = mapped_column(String(200))
     location_address: Mapped[str | None] = mapped_column(Text)
     location_postcode: Mapped[str | None] = mapped_column(String(20))
+    play_cricket_id: Mapped[int | None] = mapped_column(Integer, unique=True)
 
     availability: Mapped[list["MatchAvailability"]] = relationship(back_populates="match")
     selections: Mapped[list["TeamSelection"]] = relationship(back_populates="match")

@@ -36,6 +36,7 @@ class Team(Base, ClubScopedMixin, TimestampMixin):
     display_order: Mapped[int] = mapped_column(Integer, default=0)
     description: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    play_cricket_id: Mapped[int | None] = mapped_column(Integer)
 
     club: Mapped["Club"] = relationship(back_populates="teams")
     captain: Mapped["Player | None"] = relationship(foreign_keys=[captain_id])

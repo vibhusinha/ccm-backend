@@ -34,6 +34,7 @@ class MatchRead(BaseModel):
     location_name: str | None = None
     location_address: str | None = None
     location_postcode: str | None = None
+    play_cricket_id: int | None = None
     created_at: dt.datetime
     updated_at: dt.datetime
 
@@ -66,3 +67,4 @@ class MatchUpdate(BaseModel):
     opponent_score: str | None = None
     man_of_match_id: UUID | None = None
     match_report: str | None = None
+    play_cricket_id: int | None = None

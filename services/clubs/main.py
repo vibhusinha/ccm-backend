@@ -35,7 +35,7 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
 
-    from app.api.v1 import clubs, health, members, players, seasons, teams
+    from app.api.v1 import clubs, health, members, play_cricket, players, seasons, teams
 
     router = APIRouter(prefix="/api/v1")
     router.include_router(health.router)
@@ -44,6 +44,7 @@ def create_app() -> FastAPI:
     router.include_router(seasons.router)
     router.include_router(teams.router)
     router.include_router(players.router)
+    router.include_router(play_cricket.router)
     app.include_router(router)
 
     return app

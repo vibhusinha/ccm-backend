@@ -17,6 +17,7 @@ class ClubRead(BaseModel):
     logo_storage_path: str | None
     subscription_tier: str
     stripe_customer_id: str | None
+    play_cricket_id: int | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -40,3 +41,4 @@ class ClubUpdate(BaseModel):
     primary_color: str | None = None
     secondary_color: str | None = None
     accent_color: str | None = None
+    play_cricket_id: int | None = None

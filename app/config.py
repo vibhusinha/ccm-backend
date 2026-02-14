@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: list[str] = ["http://localhost:8081", "http://localhost:19006"]
 
+    # Play-Cricket API
+    play_cricket_api_url: str = "https://www.play-cricket.com/api/v2"
+    play_cricket_api_token: str = ""
+
     # Pagination
     default_page_size: int = 20
     max_page_size: int = 100

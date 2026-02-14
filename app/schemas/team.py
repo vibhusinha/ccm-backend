@@ -19,6 +19,7 @@ class TeamRead(BaseModel):
     display_order: int
     description: str | None
     is_active: bool
+    play_cricket_id: int | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +35,7 @@ class TeamCreate(BaseModel):
     display_order: int = 0
     description: str | None = None
     is_active: bool = True
+    play_cricket_id: int | None = None
 
 
 class TeamUpdate(BaseModel):
@@ -47,3 +49,4 @@ class TeamUpdate(BaseModel):
     display_order: int | None = None
     description: str | None = None
     is_active: bool | None = None
+    play_cricket_id: int | None = None

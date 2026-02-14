@@ -19,6 +19,7 @@ from app.api.v1 import (
     navigation,
     notifications,
     payments,
+    play_cricket,
     players,
     platform,
     profiles,
@@ -125,3 +126,6 @@ api_router.include_router(media.club_router)
 api_router.include_router(media.gallery_router)
 api_router.include_router(media.item_router)
 api_router.include_router(media.tag_router)
+
+# Play-Cricket Integration
+api_router.include_router(play_cricket.router)
