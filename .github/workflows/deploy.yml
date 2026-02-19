@@ -1,8 +1,9 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches: [main]
+  # Disabled until CDK stacks are deployed
+  # push:
+  #   branches: [main]
   workflow_dispatch:
     inputs:
       environment:
