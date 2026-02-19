@@ -36,7 +36,7 @@ export class BackendStack extends cdk.Stack {
 
     // IAM role for EC2 instance
     const instanceRole = new iam.Role(this, 'InstanceRole', {
-      roleName: `ccm-${props.envName}-backend-role`,
+      roleName: `ccm-backend-${props.envName}-role`,
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [
         // SSM Session Manager access (no SSH needed)
@@ -54,7 +54,7 @@ export class BackendStack extends cdk.Stack {
         'secretsmanager:DescribeSecret',
       ],
       resources: [
-        `arn:aws:secretsmanager:${this.region}:${this.account}:secret:ccm-${props.envName}-*`,
+        `arn:aws:secretsmanager:${this.region}:${this.account}:secret:ccm-backend-${props.envName}-*`,
       ],
     }));
 
@@ -236,7 +236,7 @@ export class BackendStack extends cdk.Stack {
 
     // EC2 instance
     this.instance = new ec2.Instance(this, 'BackendInstance', {
-      instanceName: `ccm-${props.envName}-backend`,
+      instanceName: `ccm-backend-${props.envName}-compute`,
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       instanceType: new ec2.InstanceType(
@@ -259,7 +259,7 @@ export class BackendStack extends cdk.Stack {
 
     // Elastic IP
     this.elasticIp = new ec2.CfnEIP(this, 'ElasticIp', {
-      tags: [{ key: 'Name', value: `ccm-${props.envName}-backend-eip` }],
+      tags: [{ key: 'Name', value: `ccm-backend-${props.envName}-eip` }],
     });
 
     // Associate EIP with EC2 instance

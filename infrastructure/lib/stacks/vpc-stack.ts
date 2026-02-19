@@ -14,7 +14,7 @@ export class VpcStack extends cdk.Stack {
     super(scope, id, props);
 
     this.vpc = new ec2.Vpc(this, 'Vpc', {
-      vpcName: `ccm-${props.envName}-vpc`,
+      vpcName: `ccm-backend-${props.envName}-vpc`,
       maxAzs: 2,
       natGateways: 0, // Save ~$32/month
       subnetConfiguration: [
@@ -35,7 +35,7 @@ export class VpcStack extends cdk.Stack {
     // between BackendStack and DatabaseStack
     this.ec2SecurityGroup = new ec2.SecurityGroup(this, 'Ec2SecurityGroup', {
       vpc: this.vpc,
-      securityGroupName: `ccm-${props.envName}-ec2-sg`,
+      securityGroupName: `ccm-backend-${props.envName}-ec2-sg`,
       description: 'Security group for backend EC2 instance',
       allowAllOutbound: true,
     });

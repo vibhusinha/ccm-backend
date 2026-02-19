@@ -24,7 +24,7 @@ export class DatabaseStack extends cdk.Stack {
     // Security group for RDS
     this.dbSecurityGroup = new ec2.SecurityGroup(this, 'DbSecurityGroup', {
       vpc: props.vpc,
-      securityGroupName: `ccm-${props.envName}-rds-sg`,
+      securityGroupName: `ccm-backend-${props.envName}-rds-sg`,
       description: 'Security group for RDS PostgreSQL',
       allowAllOutbound: false,
     });
@@ -55,7 +55,7 @@ export class DatabaseStack extends cdk.Stack {
       securityGroups: [this.dbSecurityGroup],
       databaseName: props.dbName,
       credentials: rds.Credentials.fromGeneratedSecret(props.dbUsername, {
-        secretName: `ccm-${props.envName}-db-credentials`,
+        secretName: `ccm-backend-${props.envName}-db-credentials`,
       }),
       allocatedStorage: props.dbAllocatedStorage,
       storageType: rds.StorageType.GP3,
@@ -66,7 +66,7 @@ export class DatabaseStack extends cdk.Stack {
       removalPolicy: props.envName === 'production'
         ? cdk.RemovalPolicy.RETAIN
         : cdk.RemovalPolicy.DESTROY,
-      instanceIdentifier: `ccm-${props.envName}-db`,
+      instanceIdentifier: `ccm-backend-${props.envName}-db`,
     });
 
     this.dbSecret = this.dbInstance.secret!;

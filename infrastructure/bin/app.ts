@@ -21,13 +21,13 @@ const awsEnv: cdk.Environment = {
 };
 
 // VPC (shared networking)
-const vpcStack = new VpcStack(app, `CCM-${env}-Vpc`, {
+const vpcStack = new VpcStack(app, `ccm-backend-${env}-vpc`, {
   env: awsEnv,
   envName: env,
 });
 
-// Backend (EC2 + ECR + Nginx + Route 53)
-new BackendStack(app, `CCM-${env}-Backend`, {
+// Backend (EC2 + ECR + Nginx)
+new BackendStack(app, `ccm-backend-${env}-compute`, {
   env: awsEnv,
   envName: env,
   vpc: vpcStack.vpc,
@@ -36,7 +36,7 @@ new BackendStack(app, `CCM-${env}-Backend`, {
 });
 
 // Database (RDS PostgreSQL 16)
-new DatabaseStack(app, `CCM-${env}-Database`, {
+new DatabaseStack(app, `ccm-backend-${env}-database`, {
   env: awsEnv,
   envName: env,
   vpc: vpcStack.vpc,
@@ -48,7 +48,7 @@ new DatabaseStack(app, `CCM-${env}-Database`, {
 });
 
 // V2 Frontend (S3 + CloudFront)
-new V2FrontendStack(app, `CCM-${env}-V2Frontend`, {
+new V2FrontendStack(app, `ccm-backend-${env}-frontend`, {
   env: awsEnv,
   envName: env,
   s3BucketName: envConfig.v2S3BucketName,

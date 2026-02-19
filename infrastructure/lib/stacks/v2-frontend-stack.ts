@@ -34,7 +34,7 @@ export class V2FrontendStack extends cdk.Stack {
 
     // Response headers policy with security headers
     const responseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeaders', {
-      responseHeadersPolicyName: `ccm-v2-${props.envName}-security-headers`,
+      responseHeadersPolicyName: `ccm-backend-${props.envName}-security-headers`,
       securityHeadersBehavior: {
         strictTransportSecurity: {
           accessControlMaxAge: cdk.Duration.days(365),
