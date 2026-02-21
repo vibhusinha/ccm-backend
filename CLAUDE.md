@@ -7,7 +7,8 @@
 - **RDS PostgreSQL 16** in a private isolated subnet (only resource not on the EC2 box)
 - **Frontend** (ccm-ui, sibling dir) is an Expo React Native SPA, deployed to S3 + CloudFront
 - **Region**: eu-west-2 (London)
-- **Domain**: crickitup.com (Namecheap) - DNS not yet configured
+- **Domain**: crickitup.com (Namecheap)
+- **Staging API**: https://api-staging.crickitup.com (TLS via Let's Encrypt, auto-renews)
 
 ## CDK Infrastructure (infrastructure/)
 - IaC: AWS CDK (TypeScript) in `infrastructure/`
@@ -18,14 +19,27 @@
   - `ccm-backend-{env}-frontend` — S3 + CloudFront for the web SPA
 - Internal resource naming convention: `ccm-backend-{env}-*`
 
+## Staging Environment
+- **API**: https://api-staging.crickitup.com
+- **EC2**: `i-0c5da302a6719dd85` (t4g.micro), Elastic IP `13.41.112.35`
+- **RDS**: `ccm-backend-staging-db.cdesquo0u4du.eu-west-2.rds.amazonaws.com`
+- **DB Credentials**: Secrets Manager `ccm-backend-staging-db-credentials`
+- **ECR**: `418884736370.dkr.ecr.eu-west-2.amazonaws.com/ccm-backend-staging`
+- **Frontend**: S3 `ccm-backend-staging-web` → CloudFront `d3uwovn5d8td7k.cloudfront.net`
+- **TLS**: Let's Encrypt certificate, auto-renews via certbot scheduled task
+
 ## Current State / TODO
-- **CDK stacks deployed to staging** (Feb 2026)
+- **CDK stacks deployed to staging** (Feb 2026) — all 4 stacks CREATE_COMPLETE
 - **Deploy workflow enabled** — auto-deploys on push to main
 - **GitHub secrets set**: `STAGING_EC2_INSTANCE_ID`, `ECR_REGISTRY`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-- **DNS not configured yet** — add A record in Namecheap:
-  - `api-staging.crickitup.com` -> `13.41.112.35`
-  - `api.crickitup.com` -> (production EIP, when deployed)
-- **After DNS propagates**, run certbot on EC2: `sudo certbot --nginx -d api-staging.crickitup.com`
+- **DNS configured**: `api-staging.crickitup.com` → `13.41.112.35`
+- **TLS configured**: certbot/Let's Encrypt on Nginx
+- **All 6 services running** on staging EC2
+
+### TODO
+- Production environment not yet deployed
+- Configure `api.crickitup.com` DNS once production EIP exists
+- Frontend (ccm-ui) not yet deployed to S3/CloudFront
 
 ## GitHub Workflows
 - `.github/workflows/deploy.yml` — builds Docker images, pushes to ECR, deploys via SSM
