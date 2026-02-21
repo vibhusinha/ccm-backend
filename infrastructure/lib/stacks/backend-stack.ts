@@ -224,7 +224,7 @@ export class BackendStack extends cdk.Stack {
       '    --name $SERVICE \\',
       '    --restart unless-stopped \\',
       '    -p $PORT:8000 \\',
-      '    --env-file /opt/ccm-backend/$SERVICE.env \\',
+      '    --env-file /opt/ccm-backend/${SERVICE#ccm-}.env \\',
       '    $IMAGE',
       'done',
       '',

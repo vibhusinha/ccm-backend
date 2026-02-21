@@ -134,10 +134,10 @@ jobs:
               "set -e",
               "aws ecr get-login-password --region '"${{ env.AWS_REGION }}"' | docker login --username AWS --password-stdin '"${{ secrets.ECR_REGISTRY }}"'",
               "docker pull '"${IMAGE}"'",
-              "docker run --rm --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
+              "docker run --rm --env-file /opt/ccm-backend/'"${SERVICE}"'.env '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
               "docker stop '"${CONTAINER}"' 2>/dev/null || true",
               "docker rm '"${CONTAINER}"' 2>/dev/null || true",
-              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"'",
+              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm-backend/'"${SERVICE}"'.env '"${IMAGE}"'",
               "sleep 5",
               "curl -sf http://127.0.0.1:'"${PORT}"'/api/v1/health || echo \"Health check pending...\""
             ]' \
@@ -183,10 +183,10 @@ jobs:
               "set -e",
               "aws ecr get-login-password --region '"${{ env.AWS_REGION }}"' | docker login --username AWS --password-stdin '"${{ secrets.ECR_REGISTRY }}"'",
               "docker pull '"${IMAGE}"'",
-              "docker run --rm --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
+              "docker run --rm --env-file /opt/ccm-backend/'"${SERVICE}"'.env '"${IMAGE}"' alembic -c services/'"${SERVICE}"'/alembic.ini upgrade head || echo \"Migration skipped or failed\"",
               "docker stop '"${CONTAINER}"' 2>/dev/null || true",
               "docker rm '"${CONTAINER}"' 2>/dev/null || true",
-              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm/.env.'"${SERVICE}"' '"${IMAGE}"'",
+              "docker run -d --name '"${CONTAINER}"' --restart unless-stopped -p '"${PORT}"':8000 --env-file /opt/ccm-backend/'"${SERVICE}"'.env '"${IMAGE}"'",
               "sleep 5",
               "curl -sf http://127.0.0.1:'"${PORT}"'/api/v1/health || echo \"Health check pending...\""
             ]' \
