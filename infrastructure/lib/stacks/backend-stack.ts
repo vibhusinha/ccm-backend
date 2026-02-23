@@ -131,6 +131,7 @@ export class BackendStack extends cdk.Stack {
       '',
       '    # Matches service (:8003)',
       '    location ~ ^/api/v1/clubs/[^/]+/matches { proxy_pass http://matches_service; }',
+      '    location ~ ^/api/v1/clubs/[^/]+/fixtures { proxy_pass http://matches_service; }',
       '    location ~ ^/api/v1/clubs/[^/]+/availability { proxy_pass http://matches_service; }',
       '    location ~ ^/api/v1/clubs/[^/]+/fixture-types { proxy_pass http://matches_service; }',
       '    location ~ ^/api/v1/clubs/[^/]+/fixture-series { proxy_pass http://matches_service; }',
