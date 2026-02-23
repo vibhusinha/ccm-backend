@@ -11,6 +11,7 @@ from app.models.base import Base, ClubScopedMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.match_availability import MatchAvailability
+    from app.models.team import Team
     from app.models.team_selection import TeamSelection
 
 
@@ -22,7 +23,7 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
         UUID(as_uuid=True), index=True
     )
     team_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), index=True
+        UUID(as_uuid=True), ForeignKey("teams.id", ondelete="SET NULL"), index=True
     )
     fixture_type_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("fixture_types.id", ondelete="SET NULL")
@@ -54,6 +55,7 @@ class Match(Base, ClubScopedMixin, TimestampMixin):
     location_postcode: Mapped[str | None] = mapped_column(String(20))
     play_cricket_id: Mapped[int | None] = mapped_column(Integer, unique=True)
 
+    team: Mapped["Team | None"] = relationship(foreign_keys=[team_id])
     availability: Mapped[list["MatchAvailability"]] = relationship(back_populates="match")
     selections: Mapped[list["TeamSelection"]] = relationship(back_populates="match")
 
