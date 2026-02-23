@@ -34,16 +34,19 @@ def map_team(pc_team: dict[str, Any], club_id: UUID) -> dict[str, Any]:
 
 
 def map_player(pc_player: dict[str, Any], club_id: UUID) -> dict[str, Any]:
-    name = pc_player.get("player_name", "")
+    name = pc_player.get("name", "") or pc_player.get("player_name", "")
     if not name:
         first = pc_player.get("first_name", "")
         last = pc_player.get("last_name", "")
         name = f"{first} {last}".strip() or "Unknown"
 
+    # Play-Cricket API returns "member_id" for player lists, "id" for other contexts
+    pc_id = pc_player.get("member_id") or pc_player.get("id")
+
     return {
         "club_id": club_id,
         "name": name,
-        "play_cricket_id": int(pc_player["id"]),
+        "play_cricket_id": int(pc_id),
         "role": "All-rounder",  # default; Play-Cricket doesn't expose role cleanly
     }
 

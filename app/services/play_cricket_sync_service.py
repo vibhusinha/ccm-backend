@@ -81,7 +81,7 @@ class PlayCricketSyncService:
 
         for pc_player in pc_players:
             try:
-                pc_id = int(pc_player["id"])
+                pc_id = int(pc_player.get("member_id") or pc_player["id"])
                 mapped = map_player(pc_player, self.club_id)
 
                 existing = await self._find_player_by_pc_id(pc_id)
@@ -93,7 +93,7 @@ class PlayCricketSyncService:
                     self.db.add(player)
                     result.created += 1
             except Exception as e:
-                result.errors.append(f"Player {pc_player.get('id')}: {e}")
+                result.errors.append(f"Player {pc_player.get('member_id') or pc_player.get('id')}: {e}")
 
         await self.db.flush()
         return result
